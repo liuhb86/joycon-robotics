@@ -25,7 +25,12 @@
 #define CONFIG_NINTENDO_FF 1
 
 #include "hid-ids.h"
+#include <linux/version.h>
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 12, 0)
+#include <linux/unaligned.h>
+#else
 #include <asm/unaligned.h>
+#endif
 #include <linux/delay.h>
 #include <linux/device.h>
 #include <linux/kernel.h>
