@@ -654,6 +654,15 @@ static int joycon_send_subcmd(struct joycon_ctlr *ctlr,
 	return ret;
 }
 
+static u8 joycon_reverse_player_led_nibble(u8 val)
+{
+	val &= 0xF;
+	return ((val & 0x1) << 3) |
+	       ((val & 0x2) << 1) |
+	       ((val & 0x4) >> 1) |
+	       ((val & 0x8) >> 3);
+}
+
 /* Supply nibbles for flash and on. Ones correspond to active */
 static int joycon_set_player_leds(struct joycon_ctlr *ctlr, u8 flash, u8 on)
 {
@@ -662,7 +671,8 @@ static int joycon_set_player_leds(struct joycon_ctlr *ctlr, u8 flash, u8 on)
 
 	req = (struct joycon_subcmd_request *)buffer;
 	req->subcmd_id = JC_SUBCMD_SET_PLAYER_LIGHTS;
-	req->data[0] = (flash << 4) | on;
+	req->data[0] = (joycon_reverse_player_led_nibble(flash) << 4) |
+		       joycon_reverse_player_led_nibble(on);
 
 	hid_dbg(ctlr->hdev, "setting player leds\n");
 	return joycon_send_subcmd(ctlr, req, 1, HZ/4);
